@@ -10,7 +10,8 @@
 # CS O'Connell, UMN EEB/IonE
 
 # output products:
-#  
+# pits-TDR-thermocouple-processed.csv
+# pitTDRsummarytable.csv
 
 
 ########################################################################
@@ -282,6 +283,9 @@ is.na(pitsTDR) <- pitsTDR < 0
 pitsTDR <- transform(pitsTDR, Month = month(pitsTDR$DateLong, label=TRUE))
 # year of sampling
 pitsTDR <- transform(pitsTDR, Year = year(pitsTDR$DateLong))
+# year-month combo variable
+pitsTDR <- transform(pitsTDR, YearMonth = paste(year(pitsTDR$DateLong),month(pitsTDR$DateLong),sep="-"))
+
 
 # fix hours
 # this converts hour from an integer to an hour:min:second thing
@@ -300,10 +304,10 @@ pitsTDR <- pitsTDR[,c(27:endcol,1:26)]
 
 # convert from wide to long so you can save both versions
 pitsTDR_long <- reshape(pitsTDR, 
-             varying = names(pitsTDR)[7:30], 
+             varying = names(pitsTDR)[8:31], 
              v.names = "measurement",
              timevar = "sensor", 
-             times = names(pitsTDR)[7:30], 
+             times = names(pitsTDR)[8:31], 
              direction = "long")
 pitsTDR_long$measurement <- as.numeric(pitsTDR_long$measurement)
 # sensor type
@@ -321,13 +325,13 @@ write.csv(pitsTDR, file=paste(pathsavefiles, "pits-TDR-thermocouple-processed.cs
 write.csv(pitsTDR_long, file=paste(pathsavefiles, "pits-TDR-thermocouple-long-processed.csv", sep = ""), row.names=FALSE)  
 
 # only temp data
-pitsthermo <- pitsTDR[,c(1:6,19:endcol)]
+pitsthermo <- pitsTDR[,c(1:7,20:endcol)]
 pitsthermo_long = pitsTDR_long[grepl("tc_e", pitsTDR_long$sensor),]
 write.csv(pitsthermo, file=paste(pathsavefiles, "pits-thermo-only-processed.csv", sep = ""), row.names=FALSE)  
 write.csv(pitsthermo_long, file=paste(pathsavefiles, "pits-thermo-only-long-processed.csv", sep = ""), row.names=FALSE)  
 
 # only VWC data
-pitsTDRonly <- pitsTDR[,c(1:18,31:endcol)]
+pitsTDRonly <- pitsTDR[,c(1:19,32:endcol)]
 pitsTDRonly_long = pitsTDR_long[grepl("VW", pitsTDR_long$sensor),]
 write.csv(pitsTDRonly, file=paste(pathsavefiles, "pits-TDR-only-processed.csv", sep = ""), row.names=FALSE)  
 write.csv(pitsTDRonly_long, file=paste(pathsavefiles, "pits-TDR-only-long-processed.csv", sep = ""), row.names=FALSE)  
@@ -340,7 +344,7 @@ write.csv(pitsTDRonly_long, file=paste(pathsavefiles, "pits-TDR-only-long-proces
 source("~/Documents/GITHUB/RPersonalFunctionsChristine/summarySE.r")
 
 # summarize by month/year, pit, and what sensor it is
-pitTDRsummarytable <- summarySE(data=pitsTDR_long, measurevar="measurement", c("PitID", "Month", "Year", "DataType", "sensor"), na.rm=TRUE, renameallcols=F)
+pitTDRsummarytable <- summarySE(data=pitsTDR_long, measurevar="measurement", c("PitID", "Month", "Year", "DataType", "YearMonth", "sensor"), na.rm=TRUE, renameallcols=F)
 
 # get rid of rows with no count
 pitTDRsummarytable <- subset(pitTDRsummarytable, !pitTDRsummarytable$N==0)
@@ -376,6 +380,91 @@ pitTDRsummarytable$sampledepth[grep("VW_Avg.12.", pitTDRsummarytable$sensor)] <-
 
 
 ########################################################################
+# ESTIMATE VW FOR THE SAME DEPTHS AS TRACE GASES
+
+# for more info on why this needs to be done, see the commented out notes at the bottom of this script
+
+# fix the VW and sampledepth issue
+# thermocouple and pit gases are at the same recorded depths, but the TDR depths are a bit off
+# calc estimates of the VW values at those intermediate depths
+
+# pitgassummary[1:7,2]
+# [1]  15  40  75 150 250 350 450
+
+# get rid of rows with NA in sample depth
+pitTDRsummarytable <- subset(pitTDRsummarytable, !is.na(pitTDRsummarytable$sampledepth))
+
+# function to get all the intermediate depth values
+dealwithVW <- function(subsettest){
+      
+      # make 15
+      row0 <- which(subsettest$sampledepth == 0)
+      row30 <- which(subsettest$sampledepth == 30)
+      subsettest <- rbind(subsettest,subsettest[row0,])
+      subsettest[dim(subsettest)[1],8:12] <- (subsettest[row0,8:12]+subsettest[row30,8:12])/2
+      
+      # make 40
+      row50 <- which(subsettest$sampledepth == 50)
+      subsettest <- rbind(subsettest,subsettest[row0,])
+      subsettest[dim(subsettest)[1],8:12] <- (subsettest[row30,8:12]+subsettest[row50,8:12])/2
+      
+      # make 75
+      row100 <- which(subsettest$sampledepth == 100)
+      subsettest <- rbind(subsettest,subsettest[row0,])
+      subsettest[dim(subsettest)[1],8:12] <- (subsettest[row50,8:12]+subsettest[row100,8:12])/2
+      
+      # make 150
+      row200 <- which(subsettest$sampledepth == 200)
+      subsettest <- rbind(subsettest,subsettest[row0,])
+      subsettest[dim(subsettest)[1],8:12] <- (subsettest[row100,8:12]+subsettest[row200,8:12])/2
+      
+      # make 250
+      row300 <- which(subsettest$sampledepth == 300)
+      subsettest <- rbind(subsettest,subsettest[row0,])
+      subsettest[dim(subsettest)[1],8:12] <- (subsettest[row200,8:12]+subsettest[row300,8:12])/2
+      
+      # make 350 and 450 (both set to 300)
+      subsettest <- rbind(subsettest,subsettest[row300,])
+      subsettest[dim(subsettest)[1],12] <- 350
+      subsettest <- rbind(subsettest,subsettest[row300,])
+      subsettest[dim(subsettest)[1],12] <- 450
+      
+      # return
+      subsettest
+      
+}
+
+# get the groups to loop through
+VWsub <- subset(pitTDRsummarytable, pitTDRsummarytable$DataType=="VW")
+VWsub$easycallname <- paste(VWsub$PitID,VWsub$YearMonth,sep="-")
+grouplist <- unique(VWsub$easycallname)
+
+# loop
+for (i in 1:length(grouplist)) {
+      
+      # group info and subset
+      grouphere <- grouplist[i]
+      subsettest <- subset(VWsub, VWsub$easycallname == grouphere)
+
+      # calc vals
+      tmp <- dealwithVW(subsettest)      
+      
+      # get new rows
+      rowadd1 <- which(tmp$sampledepth == 300) + 1
+      rowadd2 <- dim(tmp)[1]
+      colgone <- dim(tmp)[2]
+      addon <- tmp[c(rowadd1:rowadd2),-colgone]
+      
+      # bind to pitTDRsummarytable
+      pitTDRsummarytable <- rbind(pitTDRsummarytable,addon)
+      
+}
+
+# get rid of any repeat rows that you made
+pitTDRsummarytable <- distinct(pitTDRsummarytable, DataType, sampledepth, PitID, YearMonth)
+
+
+########################################################################
 # SAVE SUMMARY DATAS CSV
 
 pathsavefiles = "~/Documents/GITHUB/cso038code_TanguroPitGas/Pit-Data-Rprocessed/"
@@ -391,6 +480,48 @@ write.csv(pitTDRsummarytable, file=paste(pathsavefiles, "pitTDRsummarytable.csv"
 # check with paul to make sure that i correctly ID'ed all the variables, esp. in CR10X
 
 # make the column calls more flexible using which, since now I have to rewrite the columns nums each time I reorder or subset
+
+
+
+
+
+#### VW and depth offset problem
+
+# problem where the variables are at diff depths, so have to set them to approx similar depths
+# thermocouple and pit gases are at the same recorded depths
+# so need to assign "equivalent" TDR depths
+# do this by putting them in order?
+
+# pitgassummary[1:7,2]
+# [1]  15  40  75 150 250 350 450
+
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.1.", pitTDRsummarytable$sensor)] <- 0
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.2.", pitTDRsummarytable$sensor)] <- 15
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.3.", pitTDRsummarytable$sensor)] <- 40
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.4.", pitTDRsummarytable$sensor)] <- 75
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.5.", pitTDRsummarytable$sensor)] <- 150
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.6.", pitTDRsummarytable$sensor)] <- 250
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.7.", pitTDRsummarytable$sensor)] <- 350
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.8.", pitTDRsummarytable$sensor)] <- 450
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.9.", pitTDRsummarytable$sensor)] <- NA
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.10.", pitTDRsummarytable$sensor)] <- NA
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.11.", pitTDRsummarytable$sensor)] <- NA
+# pitTDRsummarytable$sampledepth[grep("tc_e_Avg.12.", pitTDRsummarytable$sensor)] <- NA
+# 
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.1.", pitTDRsummarytable$sensor)] <- 0
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.2.", pitTDRsummarytable$sensor)] <- 30
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.3.", pitTDRsummarytable$sensor)] <- 50
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.4.", pitTDRsummarytable$sensor)] <- 100
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.5.", pitTDRsummarytable$sensor)] <- 200
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.6.", pitTDRsummarytable$sensor)] <- 300
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.7.", pitTDRsummarytable$sensor)] <- 400
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.8.", pitTDRsummarytable$sensor)] <- 500
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.9.", pitTDRsummarytable$sensor)] <- 600
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.10.", pitTDRsummarytable$sensor)] <- 700
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.11.", pitTDRsummarytable$sensor)] <- 800
+# pitTDRsummarytable$sampledepth[grep("VW_Avg.12.", pitTDRsummarytable$sensor)] <- 900
+
+
 
 
 

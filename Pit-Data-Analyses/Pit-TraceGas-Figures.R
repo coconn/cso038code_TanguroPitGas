@@ -1,12 +1,9 @@
 # Pit-TraceGas-Figures.R
-# taking trace gas vial data associated with soil pits and making a tidy data set
+# taking trace gas vial data associated with soil pits and making some figures
 # disrupted N project
 # CS O'Connell, UMN EEB/IonE
 
 # requires files created in GC-Rcode-fileloop.R
-
-# output products:
-# pitgasfull.csv : master csv of soil pit gas sampling
 
 
 ########################################################################
@@ -74,16 +71,14 @@ pitgassummary <- join(x = summarytab1, y = summarytab2, by = c("pitID", "sampled
 pitgassummary <- join(x = pitgassummary, y = summarytab3, by = c("pitID", "sampledepth", "SampleDate", "N"))
 
 
-
-
 ########################################################################
 # SIMPLE SCATTERPLOTS OVER DEPTH
 
-p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanN2Oppm-sdN2Oppm, ymax=meanN2Oppm+sdN2Oppm), width=5)
+p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("N2O (ppm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5)
 
-p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanCO2ppm-sdCO2ppm, ymax=meanCO2ppm+sdCO2ppm), width=5)
+p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CO2 (ppm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5)
 
-p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanCH4ppm-sdCH4ppm, ymax=meanCH4ppm+sdCH4ppm), width=5)
+p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CH4 (ppm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5)
 
 # individ gas graphs
 png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-N2O.png", sep=""),width=6,height=6,units="in",res=400)
@@ -104,15 +99,14 @@ grid.arrange(p1, p2, p3, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tang
 dev.off()
 
 
-
 ########################################################################
 # VIAL SAMPLING ORDER COMPARISON
 
-p1 <- ggplot(pitgasfull, aes(x=sampledepth, y=N2Oppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p1 <- ggplot(pitgasfull, aes(x=sampledepth, y=N2Oppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
-p2 <- ggplot(pitgasfull, aes(x=sampledepth, y=CO2ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p2 <- ggplot(pitgasfull, aes(x=sampledepth, y=CO2ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
-p3 <- ggplot(pitgasfull, aes(x=sampledepth, y=CH4ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p3 <- ggplot(pitgasfull, aes(x=sampledepth, y=CH4ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
 # individ gas graphs
 png(file = paste(pathsavefigs, "soilpit-sampleorder-N2O.png", sep=""),width=10,height=6,units="in",res=400)
@@ -161,11 +155,11 @@ write.csv(pitgassummary, file=paste(pathsavefiles, "pitgassummary.csv", sep = ""
 ########################################################################
 # SIMPLE SCATTERPLOTS OVER DEPTH
 
-p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanN2Oppm-sdN2Oppm, ymax=meanN2Oppm+sdN2Oppm), width=5)
+p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5)
 
-p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanCO2ppm-sdCO2ppm, ymax=meanCO2ppm+sdCO2ppm), width=5)
+p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5)
 
-p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("sample depth (cm)") + geom_errorbar(aes(ymin=meanCH4ppm-sdCH4ppm, ymax=meanCH4ppm+sdCH4ppm), width=5)
+p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=Month)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5)
 
 # individ gas graphs
 pdf(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-N2O.pdf", sep=""),width=6,height=6)
@@ -190,11 +184,11 @@ dev.off()
 ########################################################################
 # VIAL SAMPLING ORDER COMPARISON
 
-p1 <- ggplot(pitgasfull, aes(x=sampledepth, y=N2Oppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p1 <- ggplot(pitgasfull, aes(x=sampledepth, y=N2Oppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
-p2 <- ggplot(pitgasfull, aes(x=sampledepth, y=CO2ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p2 <- ggplot(pitgasfull, aes(x=sampledepth, y=CO2ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
-p3 <- ggplot(pitgasfull, aes(x=sampledepth, y=CH4ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("sample depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
+p3 <- ggplot(pitgasfull, aes(x=sampledepth, y=CH4ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)"))
 
 # individ gas graphs
 pdf(file = paste(pathsavefigs, "soilpit-sampleorder-N2O.pdf", sep=""),width=10,height=6)
