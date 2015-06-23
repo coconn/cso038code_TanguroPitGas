@@ -131,6 +131,29 @@ pitgas <- transform(pitgas, Month = month(pitgas$SampleDate, label=TRUE))
 
 
 ########################################################################
+# BRING IN THE CENA JANKOWSKI DATA, RBIND
+
+cenapitvials <- read.csv("~/Documents/GITHUB/cso011code_TanguroN2OLosses/GC-Data-Raw-R/GC-Data-RawFolders/2015 Feb CENA Jankowski data/cenajankowskipitdata.csv", stringsAsFactors=FALSE)
+
+# make dates the same
+cenapitvials$SampleDate <- as.Date(cenapitvials$SampleDate, format="%m/%d/%y")
+
+# throw out that insanely high CO2 measurement
+cenapitvials$CO2ppm[grep("122,658,983", cenapitvials$CO2ppm)] <- NA
+
+# make sure these are numeric
+cenapitvials$N2Oppm <- as.numeric(cenapitvials$N2Oppm)
+cenapitvials$CO2ppm <- as.numeric(cenapitvials$CO2ppm)
+cenapitvials$CH4ppm <- as.numeric(cenapitvials$CH4ppm)
+
+# combine
+pitgas <- rbind(pitgas,cenapitvials)
+
+# MU and MU are different for some reason when I try to graph them; this line solves that
+pitgas$pitID[grep("MU", pitgas$pitID)] <- "MU"
+
+
+########################################################################
 # SAVE CSV
 
 # save pitgasfull as csv file
@@ -140,10 +163,12 @@ write.csv(pitgasfull, file=paste(pathsavefiles, "pitgasfull.csv", sep = ""), row
 
 
 
-
 ########################################################################
 # NOTES AND TESTING
 
+# possibility that when I did rbind above that the categories of some of the variables changed, but doesn't look like it:
+# str(pitgas)
+# str(cenapitvials)
 
 
 

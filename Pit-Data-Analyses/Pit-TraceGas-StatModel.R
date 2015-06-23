@@ -152,7 +152,7 @@ fname = paste(pathsavetab, "regr_table_CO2" ,sep="")
 regr_table(fit, fname)
 
 # CH4
-fit <- lm(meanCH4ppm ~ meandegC + meanVW + sampledepth, data=pitmodeldf)
+fit <- lm(meanCH4ppm ~ meandegC + meanVW + PitID, data=pitmodeldf)
 summary(fit) # show results
 fname = paste(pathsavetab, "regr_table_CH4" ,sep="")
 regr_table(fit, fname)
