@@ -29,15 +29,20 @@ pathsavefigs = "~/Documents/GITHUB/cso038code_TanguroPitGas/Pit-Data-Analyses/Pi
 # get rid of rows with NA in sample depth
 pitTDRsummary <- subset(pitTDRsummary, !is.na(pitTDRsummary$sampledepth))
 
+# put YearMonthOrder in as variable
+pitTDRsummary <- transform(pitTDRsummary, YearMonthOrder = paste(substr(pitTDRsummary$YearMonth, 6, 8), substr(pitTDRsummary$YearMonth, 1, 4), sep="-"))
+pitTDRsummary$YearMonthOrder <- factor(pitTDRsummary$YearMonthOrder, levels = c("11-2013", "12-2013", "1-2015", "2-2014"))
+
+
 # get rid of weird third depth in C2?  Why are these temps 18 degC, even across months?
 
 
 ########################################################################
 # SIMPLE SCATTERPLOTS OVER DEPTH
 
-p1 <- ggplot(pitTDRsummary[pitTDRsummary$DataType=="degC",], aes(x=sampledepth, y=measurement)) + geom_point(shape=1) + geom_line(aes(color=YearMonth)) + coord_flip() + scale_x_reverse() + facet_grid(PitID ~ .) + xlab("Sample Depth (cm)") + ylab("Temperature (C)") + geom_errorbar(aes(ymin=measurement-se, ymax=measurement+se), width=5)
+p1 <- ggplot(pitTDRsummary[pitTDRsummary$DataType=="degC",], aes(x=sampledepth, y=measurement)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(PitID ~ .) + xlab("Sample Depth (cm)") + ylab("Temperature (C)") + geom_errorbar(aes(ymin=measurement-se, ymax=measurement+se), width=5) + scale_colour_discrete(name="Sampling Period")
 
-p2 <- ggplot(pitTDRsummary[pitTDRsummary$DataType=="VW",], aes(x=sampledepth, y=measurement)) + geom_point(shape=1) + geom_line(aes(color=YearMonth)) + coord_flip() + scale_x_reverse() + facet_grid(PitID ~ .) + xlab("Sample Depth (cm)") + ylab("Volumetric Water Content (fraction)") + geom_errorbar(aes(ymin=measurement-se, ymax=measurement+se), width=5)
+p2 <- ggplot(pitTDRsummary[pitTDRsummary$DataType=="VW",], aes(x=sampledepth, y=measurement)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(PitID ~ .) + xlab("Sample Depth (cm)") + ylab("Volumetric Water Content (fraction)") + geom_errorbar(aes(ymin=measurement-se, ymax=measurement+se), width=5) + scale_colour_discrete(name="Sampling Period")
 
 # save graphs
 png(file = paste(pathsavefigs, "soilpit-temperature.png", sep=""),width=6,height=6,units="in",res=400)

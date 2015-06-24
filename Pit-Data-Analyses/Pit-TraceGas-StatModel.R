@@ -140,7 +140,7 @@ regr_table(fit, fname)
 pitmodeldf$LUType <- factor(pitmodeldf$LUType)
 
 # N2O
-fit <- lm(meanN2Oppm ~ meandegC + meanVW + Month, data=pitmodeldf)
+fit <- lm(meanN2Oppm ~ meandegC + meanVW + Month + sampledepth, data=pitmodeldf)
 summary(fit) # show results
 fname = paste(pathsavetab, "regr_table_N2O" ,sep="")
 regr_table(fit, fname)
@@ -152,7 +152,7 @@ fname = paste(pathsavetab, "regr_table_CO2" ,sep="")
 regr_table(fit, fname)
 
 # CH4
-fit <- lm(meanCH4ppm ~ meandegC + meanVW + PitID, data=pitmodeldf)
+fit <- lm(meanCH4ppm ~ meandegC + meanVW + Month + sampledepth, data=pitmodeldf)
 summary(fit) # show results
 fname = paste(pathsavetab, "regr_table_CH4" ,sep="")
 regr_table(fit, fname)
@@ -165,6 +165,11 @@ summary(fit) # show results
 # Multiple Linear Regression Example 
 fit <- lm(meanCH4ppm ~ meandegC + meanVW + LUType + Month + sampledepth, data=pitmodeldf)
 summary(fit) # show results
+
+
+
+
+
 
 
 
