@@ -23,6 +23,7 @@ library(magrittr)
 
 # where to save outputs
 pathsavetab = "~/Documents/GITHUB/cso038code_TanguroPitGas/Pit-Data-Analyses/PitTables/"
+pathsavefigs = "~/Documents/GITHUB/cso038code_TanguroPitGas/Pit-Data-Analyses/PitGasFigures/"
 
 # regr_table
 source("~/Documents/GITHUB/RPersonalFunctionsChristine/regr_table.r")
@@ -158,33 +159,68 @@ fname = paste(pathsavetab, "regr_table_CH4" ,sep="")
 regr_table(fit, fname)
 
 
-# Multiple Linear Regression Example 
-fit <- lm(meanCO2ppm ~ meandegC + meanVW + LUType + Month + sampledepth, data=pitmodeldf)
+
+########################################################################
+# ANOVAS WITH LUTYPE
+# diagnostic plots courtesy http://www.statmethods.net/stats/anova.html
+
+# Randomized Block Design (B is the blocking factor) 
+
+# N2O
+fit <- aov(log(meanN2Oppm) ~ LUType + sampledepth, data=pitmodeldf)
 summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
 
-# Multiple Linear Regression Example 
-fit <- lm(meanCH4ppm ~ meandegC + meanVW + LUType + Month + sampledepth, data=pitmodeldf)
+# CO2
+fit <- aov(log(meanCO2ppm) ~ LUType + sampledepth, data=pitmodeldf)
 summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
+
+# CH4
+fit <- aov(log(meanCH4ppm) ~ LUType + sampledepth, data=pitmodeldf)
+summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
 
 
+# One Way Anova (Completely Randomized Design)
 
+# N2O
+fit <- aov(log(meanN2Oppm) ~ LUType, data=pitmodeldf)
+summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
+TukeyHSD(fit)
 
+# CO2
+fit <- aov(meanCO2ppm ~ LUType, data=pitmodeldf)
+summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
+TukeyHSD(fit)
+print(model.tables(fit,"means"),digits=3)       #report the means and the number of subjects/cell
 
+# CH4
+fit <- aov(log(meanCH4ppm) ~ LUType, data=pitmodeldf)
+summary(fit) # show results
+layout(matrix(c(1,2,3,4),2,2)) # optional layout 
+plot(fit) # diagnostic plots
+TukeyHSD(fit)
 
-
-
-## model selection stuff
-
-# complete cases
-# pitmodeldf <- pitmodeldf[complete.cases(pitmodeldf),]
-
-# model selection
-model.current <- lm(meanN2Oppm ~ 1, data=pitmodeldf)
-summary(model.current) # show results
-add1(model.current, ~ pitmodeldf$meandegC + pitmodeldf$meanVW + pitmodeldf$sampledepth)
-#drop1(fit)
-
-
+# boxplots
+png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-CO2.png", sep=""),width=6,height=6,units="in",res=400)
+layout(matrix(c(1,2,3),1,3)) # optional layout
+# N2O
+boxplot(meanN2Oppm ~ LUType,data=pitmodeldf, ylab="N2O (ppm)")  
+# CO2
+boxplot(meanCO2ppm ~ LUType,data=pitmodeldf, ylab="CO2 (ppm)")  
+text(x=1, y=14600, "p < 0.001", pos=3, cex=0.9)
+text(x=1, y=13200, "***", pos=3, cex=1.4)
+# CH4
+boxplot(meanCH4ppm ~ LUType,data=pitmodeldf, ylab="CH4 (ppm)")  
+dev.off()
 
 
 
