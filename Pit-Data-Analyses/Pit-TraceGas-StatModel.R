@@ -153,7 +153,7 @@ fname = paste(pathsavetab, "regr_table_CO2" ,sep="")
 regr_table(fit, fname)
 
 # CH4
-fit <- lm(meanCH4ppm ~ meandegC + meanVW + Month + sampledepth, data=pitmodeldf)
+fit <- lm(log(meanCH4ppm) ~ meandegC + meanVW + Month + sampledepth, data=pitmodeldf)
 summary(fit) # show results
 fname = paste(pathsavetab, "regr_table_CH4" ,sep="")
 regr_table(fit, fname)
@@ -164,53 +164,75 @@ regr_table(fit, fname)
 # ANOVAS WITH LUTYPE
 # diagnostic plots courtesy http://www.statmethods.net/stats/anova.html
 
-# Randomized Block Design (B is the blocking factor) 
+## Two Way Factorial Design 
 
 # N2O
-fit <- aov(log(meanN2Oppm) ~ LUType + sampledepth, data=pitmodeldf)
+fit <- aov(log(meanN2Oppm) ~ LUType*sampledepth, data=pitmodeldf)
 summary(fit) # show results
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
 
 # CO2
-fit <- aov(log(meanCO2ppm) ~ LUType + sampledepth, data=pitmodeldf)
+fit <- aov(log(meanCO2ppm) ~ LUType*sampledepth, data=pitmodeldf)
 summary(fit) # show results
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
 
 # CH4
-fit <- aov(log(meanCH4ppm) ~ LUType + sampledepth, data=pitmodeldf)
+fit <- aov(log(meanCH4ppm) ~ LUType*sampledepth, data=pitmodeldf)
 summary(fit) # show results
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
 
 
-# One Way Anova (Completely Randomized Design)
+# One Way Anova
 
 # N2O
 fit <- aov(log(meanN2Oppm) ~ LUType, data=pitmodeldf)
 summary(fit) # show results
+# diagnostics
+png(file = paste(pathsavetab, "ANOVAdiagnostics/ANOVAdiagnostics-N2O.png", sep=""),width=6,height=6,units="in",res=400)
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
+title("N2O ANOVA Diagnostics", line = -2, outer = TRUE)
+dev.off()
+# tukey hst
 TukeyHSD(fit)
+print(model.tables(fit,"means"),digits=3)       #report the means and the number of subjects/cell
 
 # CO2
-fit <- aov(meanCO2ppm ~ LUType, data=pitmodeldf)
+fit <- aov(log(meanCO2ppm) ~ LUType, data=pitmodeldf)
 summary(fit) # show results
+# diagnostics
+png(file = paste(pathsavetab, "ANOVAdiagnostics/ANOVAdiagnostics-CO2.png", sep=""),width=6,height=6,units="in",res=400)
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
+title("CO2 ANOVA Diagnostics", line = -2, outer = TRUE)
+dev.off()
+# tukey hst
 TukeyHSD(fit)
 print(model.tables(fit,"means"),digits=3)       #report the means and the number of subjects/cell
 
 # CH4
 fit <- aov(log(meanCH4ppm) ~ LUType, data=pitmodeldf)
 summary(fit) # show results
+# diagnostics
+png(file = paste(pathsavetab, "ANOVAdiagnostics/ANOVAdiagnostics-CH4.png", sep=""),width=6,height=6,units="in",res=400)
 layout(matrix(c(1,2,3,4),2,2)) # optional layout 
 plot(fit) # diagnostic plots
+title("CH4 ANOVA Diagnostics", line = -2, outer = TRUE)
+dev.off()
+# tukey hsd
 TukeyHSD(fit)
+print(model.tables(fit,"means"),digits=3)       #report the means and the number of subjects/cell
 
-# boxplots
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-CO2.png", sep=""),width=6,height=6,units="in",res=400)
+
+
+########################################################################
+# BOXPLOTS
+
+# only land use
+png(file = paste(pathsavefigs, "soilpit-gas-anovaboxplot-nodepth.png", sep=""),width=6,height=4,units="in",res=400)
 layout(matrix(c(1,2,3),1,3)) # optional layout
 # N2O
 boxplot(meanN2Oppm ~ LUType,data=pitmodeldf, ylab="N2O (ppm)")  
@@ -222,6 +244,25 @@ text(x=1, y=13200, "***", pos=3, cex=1.4)
 boxplot(meanCH4ppm ~ LUType,data=pitmodeldf, ylab="CH4 (ppm)")  
 dev.off()
 
+# depth and land use
+
+# for all box plots
+atvec = c(1,2, 4,5, 7,8, 10,11, 13,14, 16,17, 19,20) # how to group boxes
+colorvec = c("light grey","white")
+namesvec = c("Ag 15","For 15","Ag 40","For 40","Ag 75","For 75","Ag 150","For 150","Ag 250","For 250","Ag 350","For 350","Ag 450","For 450")
+
+png(file = paste(pathsavefigs, "soilpit-gas-anovaboxplot-depthgroup.png", sep=""),width=12,height=4,units="in",res=400)
+layout(matrix(c(1,2,3),1,3)) # optional layout
+# N2O
+boxplot(meanN2Oppm ~ LUType + sampledepth,data=pitmodeldf, ylab="N2O (ppm)", col=colorvec,  las = 2, at = atvec, names=namesvec)  
+legend("topright", c("Agriculture", "Forest"), fill=colorvec)
+# CO2
+boxplot(meanCO2ppm ~ LUType + sampledepth,data=pitmodeldf, ylab="CO2 (ppm)", col=colorvec,  las = 2, at = atvec, names=namesvec)  
+legend("topright", c("Agriculture", "Forest"), fill=colorvec)
+# CH4
+boxplot(meanCH4ppm ~ LUType + sampledepth,data=pitmodeldf, ylab="CH4 (ppm)", col=colorvec,  las = 2, at = atvec, names=namesvec)  
+legend("topright", c("Agriculture", "Forest"), fill=colorvec)
+dev.off()
 
 
 ########################################################################
