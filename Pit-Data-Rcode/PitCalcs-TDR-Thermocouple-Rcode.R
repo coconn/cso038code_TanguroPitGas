@@ -184,19 +184,19 @@ CR1000.import$LUType <- NA
 CR1000.import$LUType[grepl("K4", CR1000.import$filename)] <- "Forest"
 CR1000.import$LUType[grepl("C2", CR1000.import$filename)] <- "Forest"
 CR1000.import$LUType[grepl("M8", CR1000.import$filename)] <- "Forest"
-CR1000.import$LUType[grepl("Mutum", CR1000.import$filename)] <- "Cropland"
+CR1000.import$LUType[grepl("Mutum", CR1000.import$filename)] <- "Soya SC"
 
 CR100.import$LUType <- NA
 CR100.import$LUType[grepl("K4", CR100.import$filename)] <- "Forest"
 CR100.import$LUType[grepl("C2", CR100.import$filename)] <- "Forest"
 CR100.import$LUType[grepl("M8", CR100.import$filename)] <- "Forest"
-CR100.import$LUType[grepl("Mutum", CR100.import$filename)] <- "Cropland"
+CR100.import$LUType[grepl("Mutum", CR100.import$filename)] <- "Soya SC"
 
 CR10X_C2.import$LUType <- NA
 CR10X_C2.import$LUType[grepl("K4", CR10X_C2.import$filename)] <- "Forest"
 CR10X_C2.import$LUType[grepl("C2", CR10X_C2.import$filename)] <- "Forest"
 CR10X_C2.import$LUType[grepl("M8", CR10X_C2.import$filename)] <- "Forest"
-CR10X_C2.import$LUType[grepl("Mutum", CR10X_C2.import$filename)] <- "Cropland"
+CR10X_C2.import$LUType[grepl("Mutum", CR10X_C2.import$filename)] <- "Soya SC"
 
 
 ########################################################################
@@ -280,7 +280,7 @@ pitsTDR = rbind.fill(CR1000.import, CR100.import, CR10X_C2.import)
 is.na(pitsTDR) <- pitsTDR < 0
 
 # month of sampling
-pitsTDR <- transform(pitsTDR, Month = month(pitsTDR$DateLong, label=TRUE))
+pitsTDR <- transform(pitsTDR, Month = lubridate::month(pitsTDR$DateLong, label=TRUE))
 # year of sampling
 pitsTDR <- transform(pitsTDR, Year = year(pitsTDR$DateLong))
 # year-month combo variable
@@ -344,7 +344,7 @@ write.csv(pitsTDRonly_long, file=paste(pathsavefiles, "pits-TDR-only-long-proces
 source("~/Documents/GITHUB/RPersonalFunctionsChristine/summarySE.r")
 
 # summarize by month/year, pit, and what sensor it is
-pitTDRsummarytable <- summarySE(data=pitsTDR_long, measurevar="measurement", c("PitID", "Month", "Year", "DataType", "YearMonth", "sensor"), na.rm=TRUE, renameallcols=F)
+pitTDRsummarytable <- summarySE(data=pitsTDR_long, measurevar="measurement", c("PitID", "Month", "Year", "DataType", "YearMonth", "sensor", "LUType"), na.rm=TRUE, renameallcols=F)
 
 # get rid of rows with no count
 pitTDRsummarytable <- subset(pitTDRsummarytable, !pitTDRsummarytable$N==0)
@@ -461,7 +461,7 @@ for (i in 1:length(grouplist)) {
 }
 
 # get rid of any repeat rows that you made
-pitTDRsummarytable <- distinct(pitTDRsummarytable, DataType, sampledepth, PitID, YearMonth)
+pitTDRsummarytable <- distinct(pitTDRsummarytable, DataType, sampledepth, PitID, YearMonth, LUType)
 
 
 ########################################################################

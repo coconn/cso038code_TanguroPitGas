@@ -93,7 +93,7 @@ pitmodeldf <- subset(pitmodeldf, !is.na(pitmodeldf$meanN2Oppm))
 pitmodeldf$Year <- substr(pitmodeldf$YearMonth, 1, 4)
 pitmodeldf$Month <- month(as.numeric(substr(pitmodeldf$YearMonth, 6, nchar(pitmodeldf$YearMonth))), label = TRUE)
 
-# add forest label
+# add forest vs. agriculture label
 pitmodeldf$LUType <- "Forest"
 pitmodeldf$LUType[grepl("MU", pitmodeldf$PitID)] <- "Agriculture"
 

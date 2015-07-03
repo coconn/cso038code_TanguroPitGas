@@ -127,7 +127,7 @@ pitgas$SampleDate <- gsub("[.]","/",pitgas$SampleDate)
 pitgas$SampleDate <- as.Date(pitgas$SampleDate, format="%Y/%m/%d")
 
 # month of sampling
-pitgas <- transform(pitgas, Month = month(pitgas$SampleDate, label=TRUE))
+pitgas <- transform(pitgas, Month = lubridate::month(pitgas$SampleDate, label=TRUE))
 
 
 ########################################################################

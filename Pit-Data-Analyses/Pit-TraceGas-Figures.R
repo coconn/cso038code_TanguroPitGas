@@ -75,70 +75,75 @@ pitgassummary <- transform(pitgassummary, YearMonth = paste(year(pitgassummary$S
 # put YearMonthOrder in as variable
 pitgassummary <- transform(pitgassummary, YearMonthOrder = paste(month(pitgassummary$SampleDate),year(pitgassummary$SampleDate),sep="-"))
 pitgassummary$YearMonthOrder <- factor(pitgassummary$YearMonthOrder, levels = c("12-2013", "1-2015", "2-2014"))
+# add forest vs. agriculture label
+pitgassummary$ForAgri <- "Forest"
+pitgassummary$ForAgri[grepl("Soya", pitgassummary$LUname)] <- "Agriculture"
 
 
 ########################################################################
 # SIMPLE SCATTERPLOTS OVER DEPTH
 
-p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("N2O (ppm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5) + scale_colour_discrete(name="Sampling Period")
+# gas by pit ID
+p1 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("N2O (ppm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CO2 (ppm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5) + scale_colour_discrete(name="Sampling Period")
+p2 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CO2 (ppm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CH4 (ppm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5) + scale_colour_discrete(name="Sampling Period")
+p3 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder)) + coord_flip() + scale_x_reverse() + facet_grid(pitID ~ .) + xlab("Sample Depth (cm)") + ylab("CH4 (ppm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-# individ gas graphs
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-N2O.png", sep=""),width=6,height=6,units="in",res=400)
-p1 + labs(title = "Trace Gas Concentration, Tanguro Soil Pits") 
-dev.off()
+# gas by land use type
+p4 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(LUname ~ .) + xlab("Sample Depth (cm)") + ylab("N2O (ppm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-CO2.png", sep=""),width=6,height=6,units="in",res=400)
-p2 + labs(title = "Trace Gas Concentration, Tanguro Soil Pits") 
-dev.off()
+p5 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(LUname ~ .) + xlab("Sample Depth (cm)") + ylab("CO2 (ppm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations-CH4.png", sep=""),width=6,height=6,units="in",res=400)
-p3 + labs(title = "Trace Gas Concentration, Tanguro Soil Pits") 
-dev.off()
+p6 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(LUname ~ .) + xlab("Sample Depth (cm)") + ylab("CH4 (ppm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-# grid.arrange
-# versions with shared legend
-source("~/Documents/GITHUB/RPersonalFunctionsChristine/grid_arrange_shared_legend.r")
+# gas by forest vs. agriculture
+p7 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanN2Oppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(ForAgri ~ .) + xlab("Sample Depth (cm)") + ylab("N2O (ppm)") + geom_errorbar(aes(ymin=meanN2Oppm-seN2Oppm, ymax=meanN2Oppm+seN2Oppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_legend.png", sep=""),width=4,height=12,units="in",res=400)
-grid_arrange_shared_legend(p1, p2, p3, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits")
-dev.off()
+p8 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCO2ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(ForAgri ~ .) + xlab("Sample Depth (cm)") + ylab("CO2 (ppm)") + geom_errorbar(aes(ymin=meanCO2ppm-seCO2ppm, ymax=meanCO2ppm+seCO2ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
-png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations.png", sep=""),width=16,height=6,units="in",res=400)
-grid.arrange(p1, p2, p3, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits")
-dev.off()
+p9 <- ggplot(pitgassummary, aes(x=sampledepth, y=meanCH4ppm)) + geom_point(shape=1) + geom_line(aes(color=YearMonthOrder, linetype=pitID)) + coord_flip() + scale_x_reverse() + facet_grid(ForAgri ~ .) + xlab("Sample Depth (cm)") + ylab("CH4 (ppm)") + geom_errorbar(aes(ymin=meanCH4ppm-seCH4ppm, ymax=meanCH4ppm+seCH4ppm), width=5) + scale_colour_discrete(name="Sampling Period") + theme_bw()
 
 
 ########################################################################
-# VIAL SAMPLING ORDER COMPARISON
+# SAVE SCATTERPLOTS OVER DEPTH
 
-# p1 <- ggplot(pitgasfull, aes(x=sampledepth, y=N2Oppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)", "D (Vial 4)"))
-# 
-# p2 <- ggplot(pitgasfull, aes(x=sampledepth, y=CO2ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)", "D (Vial 4)"))
-# 
-# p3 <- ggplot(pitgasfull, aes(x=sampledepth, y=CH4ppm)) + geom_point(shape=1, aes(color=sampleorder)) + facet_grid(Month ~ pitID) + geom_line(aes(color=sampleorder)) + xlab("Sample Depth (cm)") + scale_colour_brewer(palette = "Dark2", labels=c("A (Vial 1)", "B (Vial 2)", "C (Vial 3)", "D (Vial 4)"))
-# 
-# # individ gas graphs
-# png(file = paste(pathsavefigs, "Sample Order Figures/soilpit-sampleorder-N2O.png", sep=""),width=10,height=6,units="in",res=400)
-# p1 + labs(title = "Sampling Order for Trace Gas Vials, Tanguro Soil Pits")
-# dev.off()
-# 
-# png(file = paste(pathsavefigs, "Sample Order Figures/soilpit-sampleorder-CO2.png", sep=""),width=10,height=6,units="in",res=400)
-# p2 + labs(title = "Sampling Order for Trace Gas Vials, Tanguro Soil Pits")
-# dev.off()
-# 
-# png(file = paste(pathsavefigs, "Sample Order Figures/soilpit-sampleorder-CH4.png", sep=""),width=10,height=6,units="in",res=400)
-# p3 + labs(title = "Sampling Order for Trace Gas Vials, Tanguro Soil Pits")
-# dev.off()
-# 
-# # grid.arrange
-# png(file = paste(pathsavefigs, "Sample Order Figures/soilpit-sampleorder.png", sep=""),width=8,height=16,units="in",res=400)
-# grid.arrange(p1, p2, p3, nrow = 3, ncol = 1, main="Sampling Order for Trace Gas Vials, Tanguro Soil Pits")
+# versions with shared legend
+source("~/Documents/GITHUB/RPersonalFunctionsChristine/grid_arrange_shared_legend.r")
+
+# gas by pit ID
+png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_pitID.png", sep=""),width=4,height=16,units="in",res=400)
+grid_arrange_shared_legend(p1, p2, p3, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits")
+dev.off()
+
+a <- p1 + theme(legend.position="none"); b <- p2 + theme(legend.position="none")
+png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_pitID_alt.png", sep=""),width=10,height=6,units="in",res=400)
+grid.arrange(a, b, p3, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits", widths=c(1,1,1.5))
+dev.off()
+
+
+# gas by land use type
+a <- p4 + theme(legend.position="none"); b <- p5 + theme(legend.position="none")
+png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_LUtype_alt.png", sep=""),width=10,height=6,units="in",res=400)
+grid.arrange(a, b, p6, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits", widths=c(1,1,1.5))
+dev.off()
+
+# doesn't work because the line type legend doesn't also get moved over
+# png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_LUtype.png", sep=""),width=4,height=16,units="in",res=400)
+# grid_arrange_shared_legend(p3, p4, p5, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits")
 # dev.off()
 
+
+# gas by forest vs. agriculture
+a <- p7 + theme(legend.position="none"); b <- p8 + theme(legend.position="none")
+png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_ForAgri_alt.png", sep=""),width=10,height=6,units="in",res=400)
+grid.arrange(a, b, p9, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits", widths=c(1,1,1.5))
+dev.off()
+
+# doesn't work because the line type legend doesn't also get moved over
+# png(file = paste(pathsavefigs, "soilpit-tracegasconcentrations_LUtype.png", sep=""),width=4,height=16,units="in",res=400)
+# grid_arrange_shared_legend(p3, p4, p5, nrow = 1, ncol = 3, main="Trace Gas Concentration, Tanguro Soil Pits")
+# dev.off()
 
 
 ########################################################################
