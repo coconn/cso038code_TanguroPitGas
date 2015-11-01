@@ -67,6 +67,7 @@ setwd("~/Documents/GITHUB/cso038code_TanguroPitGas/Pit-Data-Raw/Pit-Data-Raw-TDR
 # BRING IN DATA BY EACH LOGGER TYPE
 
 # Import all files from pits with CR1000
+# note that CR1000_Mutum_ 20140228.dat temperature measures are all NaN (sensors on the fritz?)
 CR1000.list = list()
 for(i in 1:length(CR1000))
 {

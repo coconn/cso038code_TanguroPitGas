@@ -40,6 +40,10 @@ pitTDRsummary$ForAgri[grepl("Soya", pitTDRsummary$LUType)] <- "Agriculture"
 # get rid of VW for C2, Jan 2015, since it looks like the sensors are on the fritz
 pitTDRsummary <- pitTDRsummary[!(pitTDRsummary$PitID=="C2" & pitTDRsummary$Month=="Jan" & pitTDRsummary$DataType=="VW"),]
 
+# get rid of November month info
+pitTDRsummary <- pitTDRsummary[!(pitTDRsummary$Month=="Nov"),]
+
+
 # get rid of weird third depth in C2 for temperature?  Why are these temps 18 degC, even across months?
 
 

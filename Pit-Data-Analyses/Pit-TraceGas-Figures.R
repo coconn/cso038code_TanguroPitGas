@@ -65,10 +65,16 @@ source("~/Documents/GITHUB/RPersonalFunctionsChristine/summarySE.r")
 summarytab1 <- summarySE(data=pitgasfull, measurevar="N2Oppm", c("pitID", "sampledepth", "SampleDate", "LUtype", "LUname", "color.use", "Month"), na.rm=TRUE, renameallcols=TRUE)
 summarytab2 <- summarySE(data=pitgasfull, measurevar="CO2ppm", c("pitID", "sampledepth", "SampleDate"), na.rm=TRUE, renameallcols=TRUE)
 summarytab3 <- summarySE(data=pitgasfull, measurevar="CH4ppm", c("pitID", "sampledepth", "SampleDate"), na.rm=TRUE, renameallcols=TRUE)
+summarytab4 <- summarySE(data=pitgasfull, measurevar="ngN_cm3_N2O", c("pitID", "sampledepth", "SampleDate", "LUtype", "LUname", "color.use", "Month"), na.rm=TRUE, renameallcols=TRUE)
+summarytab5 <- summarySE(data=pitgasfull, measurevar="ngC_cm3_CO2", c("pitID", "sampledepth", "SampleDate"), na.rm=TRUE, renameallcols=TRUE)
+summarytab6 <- summarySE(data=pitgasfull, measurevar="ngC_cm3_CH4", c("pitID", "sampledepth", "SampleDate"), na.rm=TRUE, renameallcols=TRUE)
 
 # join
 pitgassummary <- join(x = summarytab1, y = summarytab2, by = c("pitID", "sampledepth", "SampleDate", "N"))
 pitgassummary <- join(x = pitgassummary, y = summarytab3, by = c("pitID", "sampledepth", "SampleDate", "N"))
+pitgassummary <- join(x = pitgassummary, y = summarytab4, by = c("pitID", "sampledepth", "SampleDate", "N"))
+pitgassummary <- join(x = pitgassummary, y = summarytab5, by = c("pitID", "sampledepth", "SampleDate", "N"))
+pitgassummary <- join(x = pitgassummary, y = summarytab6, by = c("pitID", "sampledepth", "SampleDate", "N"))
 
 # put YearMonth in as variable
 pitgassummary <- transform(pitgassummary, YearMonth = paste(year(pitgassummary$SampleDate),month(pitgassummary$SampleDate),sep="-"))
